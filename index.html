@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>DISG Quest</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{width:100%;min-height:100%;-webkit-text-size-adjust:100%;touch-action:manipulation;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  background:linear-gradient(135deg,#1a1a2e,#16213e,#0f3460);
+  min-height:100vh;color:#eee;overflow-x:hidden;}
+
+.screen{display:none;width:100%;min-height:100vh;padding:20px 16px;
+  flex-direction:column;align-items:center;justify-content:center;}
+.screen.active{display:flex;}
+
+.logo{font-size:3rem;text-align:center;margin-bottom:8px;}
+.title{font-size:2rem;font-weight:900;text-align:center;margin-bottom:6px;
+  background:linear-gradient(90deg,#f72585,#7209b7,#4361ee,#4cc9f0);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.subtitle{font-size:0.9rem;color:#aaa;text-align:center;margin-bottom:20px;}
+
+.info-row{display:flex;gap:10px;margin-bottom:18px;justify-content:center;}
+.info-box{background:rgba(255,255,255,0.08);border-radius:12px;padding:10px 14px;text-align:center;min-width:80px;}
+.info-box .n{font-size:1.4rem;font-weight:900;color:#4cc9f0;}
+.info-box .l{font-size:0.7rem;color:#aaa;}
+
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:18px;}
+.pill{border-radius:50px;padding:5px 12px;font-size:0.78rem;font-weight:700;}
+
+.start-box{width:100%;max-width:340px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+.name-label{font-size:0.75rem;color:#aaa;letter-spacing:1px;text-transform:uppercase;align-self:flex-start;}
+.name-input{width:100%;background:rgba(255,255,255,0.1);border:2px solid rgba(255,255,255,0.25);
+  border-radius:50px;padding:14px 20px;font-size:1rem;color:#fff;font-family:inherit;
+  text-align:center;outline:none;-webkit-appearance:none;appearance:none;}
+.name-input::placeholder{color:#555;}
+.name-input:focus{border-color:#4cc9f0;}
+.hint{font-size:0.68rem;color:#555;text-align:center;}
+
+/* iOS-Nuclear-Fix: <a> tag als Button – iOS behandelt Links immer als tappable */
+.btn-start{
+  display:block;width:100%;
+  background:linear-gradient(90deg,#f72585,#7209b7);
+  border:none;color:white;font-size:1.1rem;font-weight:700;
+  padding:16px 20px;border-radius:50px;cursor:pointer;
+  text-align:center;text-decoration:none;
+  -webkit-appearance:none;appearance:none;
+  box-shadow:0 8px 30px rgba(247,37,133,0.4);
+  font-family:inherit;
+  /* Verhindert iOS "callout" und Highlight-Flash */
+  -webkit-tap-highlight-color:rgba(255,255,255,0.2);
+  -webkit-touch-callout:none;
+  user-select:none;-webkit-user-select:none;
+}
+
+/* QUIZ */
+#quiz-screen{justify-content:flex-start;padding:12px 12px 30px;}
+.prog-wrap{width:100%;max-width:600px;background:rgba(255,255,255,0.1);border-radius:50px;height:7px;margin-bottom:4px;}
+.prog-bar{height:7px;border-radius:50px;background:linear-gradient(90deg,#f72585,#4cc9f0);transition:width 0.4s;}
+.prog-lbl{font-size:0.7rem;color:#aaa;text-align:right;margin-bottom:10px;width:100%;max-width:600px;}
+.q-header{width:100%;max-width:600px;margin-bottom:10px;}
+.lvl-badge{display:inline-block;background:linear-gradient(90deg,#f72585,#7209b7);
+  border-radius:50px;padding:4px 12px;font-size:0.7rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;margin-bottom:6px;}
+.q-title{font-size:1.15rem;font-weight:800;margin-bottom:6px;}
+.q-scenario{background:rgba(255,255,255,0.07);border-left:4px solid #4cc9f0;border-radius:8px;
+  padding:9px 13px;font-style:italic;color:#ccc;font-size:0.88rem;line-height:1.5;}
+.q-hint{font-size:0.7rem;color:#777;text-align:center;margin:7px 0 2px;width:100%;max-width:600px;}
+.answers{width:100%;max-width:600px;display:flex;flex-direction:column;gap:9px;}
+.acard{background:rgba(255,255,255,0.06);border:2px solid rgba(255,255,255,0.1);
+  border-radius:13px;padding:11px 13px;display:flex;align-items:center;gap:9px;
+  cursor:pointer;-webkit-user-select:none;user-select:none;
+  -webkit-tap-highlight-color:rgba(255,255,255,0.1);}
+.acard.s4{background:rgba(76,201,240,0.15);border-color:#4cc9f0;}
+.acard.s3{background:rgba(67,97,238,0.15);border-color:#4361ee;}
+.acard.s2{background:rgba(114,9,183,0.15);border-color:#7209b7;}
+.acard.s1{background:rgba(247,37,133,0.10);border-color:#f72585;}
+.aemoji{font-size:1.4rem;flex-shrink:0;}
+.atext{flex:1;font-size:0.88rem;line-height:1.4;}
+.badge-area{display:flex;align-items:center;gap:5px;flex-shrink:0;}
+.rbadge{width:36px;height:36px;border-radius:50%;border:2px solid rgba(255,255,255,0.2);
+  display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.95rem;}
+.rbadge.r4{background:#4cc9f0;color:#000;border-color:#4cc9f0;}
+.rbadge.r3{background:#4361ee;color:#fff;border-color:#4361ee;}
+.rbadge.r2{background:#7209b7;color:#fff;border-color:#7209b7;}
+.rbadge.r1{background:#f72585;color:#fff;border-color:#f72585;}
+.del-btn{display:none;width:26px;height:26px;border-radius:50%;
+  background:rgba(255,255,255,0.1);border:1px solid rgba(255,255,255,0.2);
+  color:#fff;font-size:0.7rem;cursor:pointer;align-items:center;justify-content:center;
+  -webkit-appearance:none;flex-shrink:0;}
+.acard.hr .del-btn{display:flex;}
+.btn-next{margin-top:12px;width:100%;max-width:600px;display:block;text-align:center;
+  background:linear-gradient(90deg,#4361ee,#4cc9f0);border:none;color:white;
+  font-size:1rem;font-weight:700;padding:15px;border-radius:50px;cursor:pointer;
+  opacity:0.3;pointer-events:none;-webkit-appearance:none;font-family:inherit;
+  -webkit-tap-highlight-color:rgba(255,255,255,0.2);text-decoration:none;}
+.btn-next.on{opacity:1;pointer-events:auto;}
+
+/* OVERLAY */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:500;
+  display:none;align-items:flex-end;justify-content:center;}
+.overlay.open{display:flex;}
+.ovpanel{background:#1e2a4a;border-radius:22px 22px 0 0;padding:20px 20px 50px;
+  width:100%;max-width:480px;text-align:center;}
+.ovtitle{font-size:0.85rem;color:#aaa;margin-bottom:14px;}
+.ov-btns{display:flex;gap:10px;justify-content:center;margin-bottom:14px;}
+.ovbtn{width:58px;height:58px;border-radius:50%;border:none;font-size:1.2rem;font-weight:900;
+  cursor:pointer;-webkit-appearance:none;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;line-height:1.1;
+  -webkit-tap-highlight-color:rgba(255,255,255,0.2);}
+.ovbtn small{font-size:0.6rem;font-weight:700;}
+.ovbtn.used{opacity:0.25;pointer-events:none;}
+.ovb4{background:#4cc9f0;color:#000;}
+.ovb3{background:#4361ee;color:#fff;}
+.ovb2{background:#7209b7;color:#fff;}
+.ovb1{background:#f72585;color:#fff;}
+.ov-del{background:rgba(255,255,255,0.08);border:1px solid rgba(255,255,255,0.2);
+  color:#aaa;border-radius:50px;padding:9px 22px;cursor:pointer;font-size:0.88rem;
+  -webkit-appearance:none;margin-bottom:8px;}
+.ov-can{background:transparent;border:none;color:#555;font-size:0.82rem;cursor:pointer;padding:7px 18px;}
+
+/* RESULT */
+#result-screen{justify-content:flex-start;padding:20px 14px 50px;}
+.res-inner{width:100%;max-width:600px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.res-greet{font-size:1rem;color:#4cc9f0;margin-bottom:4px;font-weight:600;}
+.res-avatar{font-size:4.5rem;margin-bottom:10px;}
+.res-typelbl{font-size:0.75rem;color:#aaa;letter-spacing:3px;text-transform:uppercase;margin-bottom:3px;}
+.res-typename{font-size:2rem;font-weight:900;margin-bottom:6px;}
+.res-tag{font-size:0.88rem;color:#ccc;margin-bottom:22px;line-height:1.5;}
+.sec-title{font-size:0.75rem;font-weight:700;color:#4cc9f0;margin-bottom:10px;text-transform:uppercase;letter-spacing:2px;}
+.job-grid{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:6px;}
+.job-card{background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);border-radius:11px;padding:8px 12px;font-size:0.82rem;display:flex;align-items:center;gap:6px;}
+.jdot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.traits{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:18px;}
+.trait{background:rgba(255,255,255,0.08);border-radius:50px;padding:5px 13px;font-size:0.78rem;color:#ccc;}
+.hof-note{background:linear-gradient(135deg,rgba(247,37,133,0.12),rgba(67,97,238,0.12));
+  border:1px solid rgba(247,37,133,0.3);border-radius:14px;padding:13px 16px;
+  max-width:460px;width:100%;font-size:0.84rem;color:#ccc;line-height:1.6;margin-bottom:18px;}
+.hof-note strong{color:#f72585;}
+.act-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;}
+.abtn{border-radius:50px;cursor:pointer;flex:1;min-width:130px;max-width:190px;
+  font-size:0.9rem;font-weight:700;padding:13px 18px;-webkit-appearance:none;border:none;
+  font-family:inherit;text-decoration:none;display:block;text-align:center;
+  -webkit-tap-highlight-color:rgba(255,255,255,0.2);}
+.abtn-r{background:rgba(255,255,255,0.1);color:white;}
+.abtn-p{background:linear-gradient(90deg,#4361ee,#4cc9f0);color:white;}
+
+/* Debug overlay – nur temporär */
+#dbg{position:fixed;bottom:0;left:0;right:0;background:#000000!important;color:#00ff00!important;border-top:3px solid #00ff00;
+  font-size:10px;font-family:monospace;padding:6px 8px;z-index:9999;
+  max-height:90px;overflow-y:auto;display:block;}
+
+.toast{position:fixed;top:14px;right:14px;background:linear-gradient(90deg,#f72585,#7209b7);
+  color:#fff;padding:9px 16px;border-radius:50px;font-weight:700;font-size:0.85rem;
+  opacity:0;transform:translateY(-14px);transition:all 0.3s;z-index:400;pointer-events:none;}
+.toast.on{opacity:1;transform:translateY(0);}
+
+canvas{display:block;margin:0 auto;max-width:100%;}
+.print-hdr,.print-ftr{display:none;}
+@media print{
+  body{background:#fff!important;color:#111!important;-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;}
+  .screen{display:none!important;}
+  #result-screen{display:block!important;min-height:unset;padding:16px;background:#fff!important;}
+  .act-btns,.toast,.overlay,#dbg{display:none!important;}
+  .res-inner{max-width:100%;}
+  .print-hdr,.print-ftr{display:block!important;}
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div id="dbg"></div>
+
+<!-- OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="ovpanel">
+    <div class="ovtitle" id="ovtitle">Rang wählen</div>
+    <div class="ov-btns">
+      <button class="ovbtn ovb4" type="button" id="ob4">🥇<br><small>4</small></button>
+      <button class="ovbtn ovb3" type="button" id="ob3">🥈<br><small>3</small></button>
+      <button class="ovbtn ovb2" type="button" id="ob2">🥉<br><small>2</small></button>
+      <button class="ovbtn ovb1" type="button" id="ob1">❌<br><small>1</small></button>
+    </div>
+    <button class="ov-del" type="button" id="ov-del-btn">🗑️ Löschen</button><br>
+    <button class="ov-can" type="button" id="ov-can-btn">Abbrechen</button>
+  </div>
+</div>
+
+<!-- START -->
+<div class="screen active" id="start-screen">
+  <div class="logo">🎮</div>
+  <div class="title">DISG Quest</div>
+  <div class="subtitle">Entdecke deine Persönlichkeit – finde deine Ausbildung!</div>
+  <div class="info-row">
+    <div class="info-box"><div class="n">10</div><div class="l">Level</div></div>
+    <div class="info-box"><div class="n">2min</div><div class="l">Dauer</div></div>
+    <div class="info-box"><div class="n">4</div><div class="l">Typen</div></div>
+  </div>
+  <div class="pills">
+    <span class="pill" style="background:rgba(201,24,74,0.25);color:#ff6fa3;">🔥 Dominant</span>
+    <span class="pill" style="background:rgba(249,132,74,0.25);color:#ffe066;">🎤 Initiativ</span>
+    <span class="pill" style="background:rgba(26,147,111,0.25);color:#57cc99;">🤝 Stetig</span>
+    <span class="pill" style="background:rgba(58,91,217,0.25);color:#748ffc;">📋 Gewissenhaft</span>
+  </div>
+  <div class="start-box">
+    <label class="name-label" for="pname">Dein Vorname</label>
+    <input type="text" class="name-input" id="pname" placeholder="z.B. Max"
+      maxlength="30" autocomplete="given-name" autocorrect="off"
+      autocapitalize="words" spellcheck="false"
+      inputmode="text" enterkeyhint="go">
+    <div class="hint">🔒 Nur Vorname – kein Nachname nötig</div>
+    <!-- iOS Nuclear Fix: href="javascript:void(0)" macht es zu einem echten Link-Tap -->
+    <a href="javascript:void(0)" class="btn-start" id="btn-start" role="button">🚀 Quest starten!</a>
+  </div>
+  <div style="margin-top:14px;font-size:0.68rem;color:#444;">Hofmann Personal × DISG-Modell</div>
+</div>
+
+<!-- QUIZ -->
+<div class="screen" id="quiz-screen">
+  <div class="prog-wrap"><div class="prog-bar" id="prog" style="width:0%"></div></div>
+  <div class="prog-lbl" id="prog-lbl">Level 1 von 10</div>
+  <div class="q-header" id="qheader"></div>
+  <div class="q-hint">🥇4 &nbsp;🥈3 &nbsp;🥉2 &nbsp;❌1 – jede Zahl nur einmal! Tippe eine Karte an.</div>
+  <div class="answers" id="answers"></div>
+  <a href="javascript:void(0)" class="btn-next" id="btn-next">Weiter ➜</a>
+</div>
+
+<!-- RESULT -->
+<div class="screen" id="result-screen">
+  <div class="print-hdr" style="text-align:center;margin-bottom:12px;">
+    <strong style="color:#c9184a;font-size:1.2rem;">🎮 DISG Quest | Hofmann Personal</strong>
+  </div>
+  <div class="res-inner" id="result-content"></div>
+  <div class="print-ftr" style="text-align:center;font-size:0.7rem;color:#999;margin-top:20px;padding-top:8px;border-top:1px solid #eee;">
+    DISG Quest · Hofmann Personal · 🔒 Datenschutz: nur Vorname
+  </div>
+</div>
+
+<script>
+// ── DEBUG LOGGER (sichtbar auf-Gerät) ──────────────────────────
+var DBG=true; // auf false setzen wenn alles läuft
+function log(msg){
+  if(!DBG)return;
+  var d=document.getElementById("dbg");
+  if(!d)return;
+  d.style.display="block";
+  var t=new Date().toTimeString().slice(3,8);
+  d.innerHTML='['+t+'] '+msg+'<br>'+d.innerHTML;
+}
+
+// ── DATEN ─────────────────────────────────────────────────────
+var Q=[
+  {lv:1,ti:"Die Gruppenarbeit",sc:"Eure Klasse soll ein Projekt präsentieren. Niemand übernimmt die Führung. Was machst du?",
+   an:[{e:"🔥",t:"Ich übernehme sofort die Leitung und verteile Aufgaben.",y:"D"},
+       {e:"🎤",t:"Ich motiviere alle, schlage Ideen vor und sorge für gute Stimmung.",y:"I"},
+       {e:"🤝",t:"Ich höre zu und unterstütze das Team zuverlässig.",y:"S"},
+       {e:"📋",t:"Ich erstelle einen genauen Plan mit Deadlines.",y:"G"}]},
+  {lv:2,ti:"Der neue Schüler",sc:"Ein neuer Mitschüler wirkt unsicher. Wie reagierst du?",
+   an:[{e:"🎤",t:"Ich gehe sofort rüber und nehme ihn/sie in die Gruppe auf.",y:"I"},
+       {e:"🤝",t:"Ich beobachte und spreche ruhig an, wenn der Moment passt.",y:"S"},
+       {e:"📋",t:"Ich überlege, was er/sie braucht, und helfe gezielt.",y:"G"},
+       {e:"🔥",t:"Ich organisiere eine Vorstellungsrunde für die ganze Klasse.",y:"D"}]},
+  {lv:3,ti:"Die Schulaufgabe",sc:"Ihr bekommt eine schwierige Hausaufgabe. Wie gehst du vor?",
+   an:[{e:"📋",t:"Ich recherchiere gründlich und überprüfe alles doppelt.",y:"G"},
+       {e:"🔥",t:"Ich starte sofort und arbeite mich schnell durch.",y:"D"},
+       {e:"🤝",t:"Ich mache es mit Freunden – gemeinsam klappt es besser.",y:"S"},
+       {e:"🎤",t:"Ich suche eine kreative Lösung, die heraussticht.",y:"I"}]},
+  {lv:4,ti:"Das Streitgespräch",sc:"Zwei Freunde streiten sich und du steckst mittendrin. Was tust du?",
+   an:[{e:"🤝",t:"Ich höre beiden zu und versuche zu vermitteln.",y:"S"},
+       {e:"🔥",t:"Ich sage klar meine Meinung und schlage eine Lösung vor.",y:"D"},
+       {e:"🎤",t:"Ich lockere die Stimmung auf und bringe beide zum Lachen.",y:"I"},
+       {e:"📋",t:"Ich analysiere das Problem sachlich und suche die fairste Lösung.",y:"G"}]},
+  {lv:5,ti:"Der große Auftritt",sc:"Eure Klasse hat einen Stand auf der Schulmesse. Welche Rolle übernimmst du?",
+   an:[{e:"🎤",t:"Ich bin das Gesicht des Standes und begeistere alle.",y:"I"},
+       {e:"🔥",t:"Ich plane den Ablauf und behalte den Überblick.",y:"D"},
+       {e:"🤝",t:"Ich sorge dafür, dass alles reibungslos läuft.",y:"S"},
+       {e:"📋",t:"Ich kümmere mich um Details, Infomaterial und Korrektheit.",y:"G"}]},
+  {lv:6,ti:"Der Zeitdruck",sc:"Wichtige Abgabe ist morgen und ihr seid nicht fertig. Was passiert bei dir?",
+   an:[{e:"🔥",t:"Ich priorisiere sofort und ziehe das Ding durch.",y:"D"},
+       {e:"📋",t:"Ich arbeite konzentriert und kontrolliere jeden Schritt.",y:"G"},
+       {e:"🤝",t:"Ich schaue wer Hilfe braucht und wir ziehen gemeinsam durch.",y:"S"},
+       {e:"🎤",t:"Ich behalte die gute Laune, damit niemand in Panik verfällt.",y:"I"}]},
+  {lv:7,ti:"Das Feedback",sc:"Dein Lehrer kritisiert deine Arbeit vor der Klasse. Wie reagierst du?",
+   an:[{e:"🔥",t:"Ich verteidige meine Arbeit direkt.",y:"D"},
+       {e:"🎤",t:"Ich nehme es locker und zeige Gelassenheit.",y:"I"},
+       {e:"🤝",t:"Ich nicke und nehme das Feedback ruhig an.",y:"S"},
+       {e:"📋",t:"Ich notiere die Punkte genau und arbeite sie durch.",y:"G"}]},
+  {lv:8,ti:"Das Abenteuer",sc:"Du hast einen freien Samstag. Was klingt am coolsten?",
+   an:[{e:"🔥",t:"Ein spontanes Abenteuer – einfach losziehen.",y:"D"},
+       {e:"🎤",t:"Mit möglichst vielen Freunden abhängen und Spaß haben.",y:"I"},
+       {e:"🤝",t:"Einen entspannten Tag mit engen Freunden verbringen.",y:"S"},
+       {e:"📋",t:"Endlich Zeit für ein Projekt, das ich lange planen wollte.",y:"G"}]},
+  {lv:9,ti:"Das Team-Versagen",sc:"Euer Teamprojekt läuft schief – Abgabe verpasst. Was denkst du zuerst?",
+   an:[{e:"🔥",t:"Wer ist verantwortlich? Das muss sofort geklärt werden.",y:"D"},
+       {e:"🎤",t:"Wie retten wir das? Ich hab schon Ideen!",y:"I"},
+       {e:"🤝",t:"Wie geht es dem Team? Ich will sicherstellen, dass alle okay sind.",y:"S"},
+       {e:"📋",t:"Was ist schiefgelaufen? Ich analysiere das genau.",y:"G"}]},
+  {lv:10,ti:"Der Traumjob",sc:"Stell dir deinen perfekten Ausbildungsplatz vor. Wie sieht der aus?",
+   an:[{e:"🔥",t:"Ich habe Verantwortung und kann Dinge wirklich bewegen.",y:"D"},
+       {e:"🎤",t:"Jeden Tag Kontakt zu Menschen, kreativ, kein Tag wie der andere.",y:"I"},
+       {e:"🤝",t:"Teil eines festen Teams, verlässliche Arbeit, ich werde gebraucht.",y:"S"},
+       {e:"📋",t:"Präzise arbeiten, klare Strukturen, Dinge perfekt machen.",y:"G"}]}
+];
+
+var PRO={
+  D:{av:"🔥",nm:"Der Macher",tg:"Du packst an, du führst, du gewinnst.",col:"#c9184a",
+     tr:["Entschlossen","Mutig","Zielorientiert","Direkt","Führungsstark","Schnell"],
+     jo:[{e:"💼",t:"Industriekaufmann/-frau",y:["D"]},{e:"📊",t:"Vertriebsassistenz",y:["D","I"]},
+         {e:"🏢",t:"Management Assistenz",y:["D"]},{e:"🚀",t:"Kaufm. E-Commerce",y:["D","I"]},
+         {e:"🏗️",t:"Projektleitung Bau",y:["D","G"]}]},
+  I:{av:"🎤",nm:"Der Inspirator",tg:"Du begeisterst Menschen – überall und jederzeit.",col:"#f9844a",
+     tr:["Kommunikativ","Kreativ","Begeisternd","Spontan","Optimistisch","Offen"],
+     jo:[{e:"📣",t:"Kaufm. Marketing",y:["I"]},{e:"🎪",t:"Veranstaltungskaufm.",y:["I","D"]},
+         {e:"👥",t:"Personaldienstleistungskfm.",y:["I","S"]},{e:"🛍️",t:"Einzelhandel",y:["I","S"]},
+         {e:"📱",t:"Mediengestalter Digital",y:["I","G"]}]},
+  S:{av:"🤝",nm:"Das Teamherz",tg:"Du bist der Fels in der Brandung – immer da.",col:"#1a936f",
+     tr:["Zuverlässig","Einfühlsam","Geduldig","Loyal","Teamorientiert","Ausgeglichen"],
+     jo:[{e:"📦",t:"Lagerlogistik",y:["S","G"]},{e:"🏥",t:"Med. Fachangestellte/r",y:["S"]},
+         {e:"🧑‍💼",t:"Bürokaufmann/-frau",y:["S","G"]},{e:"🌍",t:"Sozialassistenz",y:["S","I"]},
+         {e:"🔧",t:"Industriemechaniker/in",y:["S","G"]}]},
+  G:{av:"📋",nm:"Der Analyst",tg:"Du denkst, bevor du handelst – das macht den Unterschied.",col:"#3a5bd9",
+     tr:["Präzise","Analytisch","Sorgfältig","Qualitätsbewusst","Strukturiert","Gründlich"],
+     jo:[{e:"💻",t:"Fachinformatiker/in",y:["G"]},{e:"📑",t:"Steuerfachangestellte/r",y:["G","S"]},
+         {e:"🔬",t:"Pharmaz.-kfm. Angest.",y:["G"]},{e:"📈",t:"Kaufm. Buchhaltung",y:["G","D"]},
+         {e:"🛡️",t:"IT-Sicherheitstechnik",y:["G","I"]}]}
+};
+
+var TC={D:"#c9184a",I:"#f9844a",S:"#1a936f",G:"#3a5bd9"};
+var TN={D:"Dominant",I:"Initiativ",S:"Stetig",G:"Gewissenhaft"};
+var RE={4:"🥇",3:"🥈",2:"🥉",1:"❌"};
+var cQ=0,sc={D:0,I:0,S:0,G:0},cr={},xp=0,pn="",ovIdx=null;
+
+// ── SCREEN ────────────────────────────────────────────────────
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(function(s){s.classList.remove("active");});
+  document.getElementById(id).classList.add("active");
+  window.scrollTo(0,0);
+}
+
+// ── START ─────────────────────────────────────────────────────
+function startQuiz(){
+  log("startQuiz() aufgerufen");
+  // Keyboard schließen
+  var inp=document.getElementById("pname");
+  if(inp){inp.blur();}
+  pn=inp?inp.value.trim():"";
+  if(!pn)pn="Du";
+  cQ=0;sc={D:0,I:0,S:0,G:0};cr={};xp=0;
+  showScreen("quiz-screen");
+  renderQ();
+}
+
+// ── QUIZ ─────────────────────────────────────────────────────
+function renderQ(){
+  var q=Q[cQ];
+  document.getElementById("prog").style.width=(cQ/Q.length*100)+"%";
+  document.getElementById("prog-lbl").textContent="Level "+(cQ+1)+" von "+Q.length;
+  document.getElementById("qheader").innerHTML=
+    '<div class="lvl-badge">⚡ Level '+q.lv+'</div>'+
+    '<div class="q-title">'+q.ti+'</div>'+
+    '<div class="q-scenario">'+q.sc+'</div>';
+  cr={};
+  var cont=document.getElementById("answers");
+  cont.innerHTML="";
+  for(var i=0;i<q.an.length;i++){
+    (function(idx){
+      var a=q.an[idx];
+      var d=document.createElement("div");
+      d.className="acard";d.id="ac"+idx;
+      d.innerHTML='<div class="aemoji">'+a.e+'</div>'+
+        '<div class="atext">'+a.t+'</div>'+
+        '<div class="badge-area">'+
+          '<button class="del-btn" type="button" id="db'+idx+'">✕</button>'+
+          '<div class="rbadge" id="rb'+idx+'">?</div>'+
+        '</div>';
+      d.addEventListener("touchstart",function(){},false);
+      d.addEventListener("click",function(e){
+        if(e.target.closest&&(e.target.closest(".del-btn")||e.target.closest(".rbadge")))return;
+        autoRank(idx);
+      });
+      d.querySelector("#rb"+idx).addEventListener("click",function(e){e.stopPropagation();openOv(idx);});
+      d.querySelector("#db"+idx).addEventListener("click",function(e){e.stopPropagation();delRank(idx);});
+      cont.appendChild(d);
+    })(i);
+  }
+  document.getElementById("btn-next").classList.remove("on");
+}
+
+function autoRank(idx){
+  if(cr[idx]!==undefined){delRank(idx);return;}
+  var used=Object.values(cr),next=null;
+  for(var r=4;r>=1;r--){if(used.indexOf(r)<0){next=r;break;}}
+  if(next===null)return;
+  cr[idx]=next;updUI();
+  if(Object.keys(cr).length===4)document.getElementById("btn-next").classList.add("on");
+}
+function delRank(idx){
+  if(cr[idx]===undefined)return;
+  delete cr[idx];updUI();
+  document.getElementById("btn-next").classList.remove("on");
+}
+function openOv(idx){
+  ovIdx=idx;
+  var used=[];
+  Object.keys(cr).forEach(function(k){if(parseInt(k)!==idx)used.push(cr[k]);});
+  [1,2,3,4].forEach(function(r){
+    document.getElementById("ob"+r).classList.toggle("used",used.indexOf(r)>=0);
+  });
+  document.getElementById("ovtitle").textContent='"'+Q[cQ].an[idx].t.substring(0,40)+'…"';
+  document.getElementById("overlay").classList.add("open");
+}
+function closeOv(){document.getElementById("overlay").classList.remove("open");ovIdx=null;}
+function setOvRank(r){
+  if(ovIdx===null)return;
+  Object.keys(cr).forEach(function(k){if(cr[k]===r&&parseInt(k)!==ovIdx)delete cr[k];});
+  cr[ovIdx]=r;updUI();
+  document.getElementById("btn-next").classList.toggle("on",Object.keys(cr).length===4);
+  closeOv();
+}
+function delOvRank(){if(ovIdx===null)return;delRank(ovIdx);closeOv();}
+function updUI(){
+  for(var i=0;i<4;i++){
+    var card=document.getElementById("ac"+i);
+    var badge=document.getElementById("rb"+i);
+    if(!card)continue;
+    card.className="acard";badge.className="rbadge";badge.textContent="?";
+    if(cr[i]!==undefined){
+      var r=cr[i];
+      card.classList.add("s"+r,"hr");
+      badge.classList.add("r"+r);badge.textContent=RE[r];
+    }
+  }
+}
+function nextQ(){
+  var q=Q[cQ];
+  for(var i=0;i<q.an.length;i++){if(cr[i]!==undefined)sc[q.an[i].y]+=cr[i];}
+  xp+=10;
+  var t=document.getElementById("toast");
+  t.textContent="+10 XP ⚡ ("+xp+" total)";t.classList.add("on");
+  setTimeout(function(){t.classList.remove("on");},1400);
+  cQ++;
+  if(cQ<Q.length)renderQ();else showRes();
+}
+
+// ── RESULT ───────────────────────────────────────────────────
+function showRes(){
+  showScreen("result-screen");
+  var tot=sc.D+sc.I+sc.S+sc.G;
+  var sorted=[["D",sc.D],["I",sc.I],["S",sc.S],["G",sc.G]].sort(function(a,b){return b[1]-a[1];});
+  var top=sorted[0][0],p=PRO[top];
+  var jobs=p.jo.map(function(j){
+    return '<div class="job-card">'+j.y.map(function(t){return '<div class="jdot" style="background:'+TC[t]+'"></div>';}).join("")+'<span>'+j.e+'</span>'+j.t+'</div>';
+  }).join("");
+  var traits=p.tr.map(function(t){return '<div class="trait">'+t+'</div>';}).join("");
+  var cw=Math.min(window.innerWidth-28,300);
+  var bw=Math.min(window.innerWidth-28,440);
+  document.getElementById("result-content").innerHTML=
+    '<div class="res-greet">🏆 Gut gemacht, '+pn+'!</div>'+
+    '<div class="res-avatar">'+p.av+'</div>'+
+    '<div class="res-typelbl">Dein DISG-Typ</div>'+
+    '<div class="res-typename" style="color:'+p.col+'">'+p.nm+'</div>'+
+    '<div class="res-tag">'+p.tg+'</div>'+
+    '<div style="width:100%;margin-bottom:8px;"><div class="sec-title">📊 Deine Ausprägung</div>'+
+    '<canvas id="bc" width="'+cw+'" height="'+cw+'" style="max-width:100%;margin:0 auto 6px;display:block;"></canvas>'+
+    '<canvas id="br" width="'+bw+'" height="160" style="max-width:100%;margin:0 auto 18px;display:block;"></canvas></div>'+
+    '<div style="width:100%;margin-bottom:16px;"><div class="sec-title">🎯 Passende Ausbildungen für '+pn+'</div>'+
+    '<div class="job-grid">'+jobs+'</div>'+
+    '<p style="font-size:0.68rem;color:#666;margin-top:6px;">● Farbpunkte = DISG-Typen</p></div>'+
+    '<div class="traits">'+traits+'</div>'+
+    '<div class="hof-note"><strong>Hofmann Personal</strong> vermittelt genau diese Ausbildungsplätze!<br>Sprich uns an unserem Stand an. 🚀</div>'+
+    '<div class="act-btns">'+
+    '<a href="javascript:void(0)" class="abtn abtn-r" id="rbtn">🔄 Nochmal</a>'+
+    '<a href="javascript:void(0)" class="abtn abtn-p" id="pbtn">📄 PDF</a>'+
+    '</div>';
+  setTimeout(function(){
+    drawBubble(tot,sorted,cw);
+    drawBar(tot,sorted,bw);
+    var rb=document.getElementById("rbtn");
+    var pb=document.getElementById("pbtn");
+    if(rb)rb.addEventListener("click",function(){document.getElementById("pname").value=pn;showScreen("start-screen");});
+    if(pb)pb.addEventListener("click",function(){window.print();});
+  },150);
+}
+
+function drawBubble(tot,sorted,W){
+  var c=document.getElementById("bc");if(!c)return;
+  var ctx=c.getContext("2d"),H=W;
+  ctx.clearRect(0,0,W,H);
+  var mx=sorted[0][1],mn=Math.round(W*0.11),mx2=Math.round(W*0.25);
+  var pos={D:[W*0.27,H*0.27],I:[W*0.73,H*0.27],S:[W*0.27,H*0.73],G:[W*0.73,H*0.73]};
+  ["D","I","S","G"].forEach(function(t){
+    var s=sc[t],r=mn+Math.round((s/mx)*(mx2-mn));
+    var cx=pos[t][0],cy=pos[t][1],pct=Math.round((s/tot)*100);
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.fillStyle=TC[t];ctx.fill();
+    ctx.beginPath();ctx.arc(cx,cy,r,0,Math.PI*2);ctx.strokeStyle="rgba(255,255,255,0.25)";ctx.lineWidth=2;ctx.stroke();
+    var big=r>W*0.17;
+    ctx.fillStyle="#fff";ctx.textAlign="center";ctx.textBaseline="middle";
+    ctx.font="900 "+Math.round(r*(big?0.4:0.44))+"px -apple-system,sans-serif";
+    ctx.fillText(t,cx,cy-(big?r*0.24:r*0.16));
+    ctx.font="bold "+Math.round(r*(big?0.27:0.3))+"px -apple-system,sans-serif";
+    ctx.fillText(pct+"%",cx,cy+(big?r*0.1:r*0.16));
+    if(big){ctx.font="600 "+Math.round(r*0.18)+"px -apple-system,sans-serif";ctx.fillStyle="rgba(255,255,255,0.8)";ctx.fillText(TN[t],cx,cy+r*0.43);}
+  });
+}
+function drawBar(tot,sorted,W){
+  var c=document.getElementById("br");if(!c)return;
+  var ctx=c.getContext("2d"),H=160;
+  ctx.clearRect(0,0,W,H);
+  var lw=Math.round(W*0.26),bh=Math.round(H*0.15),gap=Math.round(H*0.085);
+  var sx=lw+8,sy=10,mw=W-sx-48;
+  sorted.forEach(function(en,i){
+    var t=en[0],val=en[1],y=sy+i*(bh+gap),pct=Math.round((val/tot)*100);
+    var bw2=Math.round((val/sorted[0][1])*mw);
+    ctx.fillStyle=TC[t];ctx.font="bold "+Math.round(bh*0.5)+"px -apple-system,sans-serif";
+    ctx.textAlign="right";ctx.textBaseline="middle";ctx.fillText(TN[t],lw,y+bh/2);
+    ctx.beginPath();if(ctx.roundRect)ctx.roundRect(sx,y,mw,bh,bh/2);else ctx.rect(sx,y,mw,bh);
+    ctx.fillStyle="rgba(180,180,200,0.18)";ctx.fill();
+    if(bw2>0){ctx.beginPath();if(ctx.roundRect)ctx.roundRect(sx,y,bw2,bh,bh/2);else ctx.rect(sx,y,bw2,bh);ctx.fillStyle=TC[t];ctx.fill();}
+    ctx.fillStyle=TC[t];ctx.font="bold "+Math.round(bh*0.48)+"px -apple-system,sans-serif";
+    ctx.textAlign="left";ctx.fillText(pct+"%",sx+bw2+6,y+bh/2);
+  });
+}
+
+// ── EVENT SETUP ───────────────────────────────────────────────
+document.addEventListener("DOMContentLoaded",function(){
+  log("DOM ready");
+
+  // START BUTTON – alle Event-Typen abdecken
+  var startBtn=document.getElementById("btn-start");
+  log("btn-start gefunden: "+(startBtn?"JA":"NEIN"));
+
+  if(startBtn){
+    startBtn.addEventListener("touchend",function(e){
+      log("touchend gefeuert");
+      e.preventDefault();
+      startQuiz();
+    },{passive:false});
+    startBtn.addEventListener("click",function(e){
+      log("click gefeuert");
+      // kein preventDefault – form submit soll durchlaufen
+      startQuiz();
+    });
+  }
+  var startForm=document.getElementById("start-form");
+  if(startForm){
+    startForm.addEventListener("submit",function(e){
+      log("form submit gefeuert");
+      e.preventDefault();
+      startQuiz();
+    });
+  }
+
+  // WEITER BUTTON
+  var nextBtn=document.getElementById("btn-next");
+  if(nextBtn){
+    nextBtn.addEventListener("touchend",function(e){
+      if(!this.classList.contains("on"))return;
+      e.preventDefault();nextQ();
+    },{passive:false});
+    nextBtn.addEventListener("click",function(e){
+      e.preventDefault();
+      if(this.classList.contains("on"))nextQ();
+    });
+  }
+
+  // KEYBOARD: Enter im Namensfeld → Start
+  var inp=document.getElementById("pname");
+  if(inp){
+    inp.addEventListener("keydown",function(e){
+      if(e.key==="Enter"||e.keyCode===13){e.preventDefault();startQuiz();}
+    });
+  }
+
+  // OVERLAY
+  document.getElementById("ob4").addEventListener("click",function(){setOvRank(4);});
+  document.getElementById("ob3").addEventListener("click",function(){setOvRank(3);});
+  document.getElementById("ob2").addEventListener("click",function(){setOvRank(2);});
+  document.getElementById("ob1").addEventListener("click",function(){setOvRank(1);});
+  document.getElementById("ov-del-btn").addEventListener("click",delOvRank);
+  document.getElementById("ov-can-btn").addEventListener("click",closeOv);
+  document.getElementById("overlay").addEventListener("click",function(e){if(e.target===this)closeOv();});
+});
+</script>
+</body>
+</html>
