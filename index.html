@@ -150,7 +150,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
 /* Debug overlay – nur temporär */
 #dbg{position:fixed;bottom:0;left:0;right:0;background:#000000!important;color:#00ff00!important;border-top:3px solid #00ff00;
   font-size:10px;font-family:monospace;padding:6px 8px;z-index:9999;
-  max-height:90px;overflow-y:auto;display:none;}
+  max-height:90px;overflow-y:auto;display:block;}
 
 .toast{position:fixed;top:14px;right:14px;background:linear-gradient(90deg,#f72585,#7209b7);
   color:#fff;padding:9px 16px;border-radius:50px;font-weight:700;font-size:0.85rem;
@@ -241,7 +241,7 @@ canvas{display:block;margin:0 auto;max-width:100%;}
 
 <script>
 // ── DEBUG LOGGER (sichtbar auf-Gerät) ──────────────────────────
-var DBG=false; // auf false setzen wenn alles läuft
+var DBG=true; // auf false setzen wenn alles läuft
 function log(msg){
   if(!DBG)return;
   var d=document.getElementById("dbg");
@@ -254,55 +254,55 @@ function log(msg){
 // ── DATEN ─────────────────────────────────────────────────────
 var Q=[
   {lv:1,ti:"Die Gruppenarbeit",sc:"Eure Klasse soll ein Projekt präsentieren. Niemand übernimmt die Führung. Was machst du?",
-   an:[{e:"🔥",t:"Ich übernehme sofort die Leitung und verteile Aufgaben.",y:"D"},
-       {e:"🎤",t:"Ich motiviere alle, schlage Ideen vor und sorge für gute Stimmung.",y:"I"},
-       {e:"🤝",t:"Ich höre zu und unterstütze das Team zuverlässig.",y:"S"},
-       {e:"📋",t:"Ich erstelle einen genauen Plan mit Deadlines.",y:"G"}]},
+   an:[{e:"😊",t:"Ich übernehme sofort die Leitung und verteile Aufgaben.",y:"D"},
+       {e:"🙂",t:"Ich motiviere alle, schlage Ideen vor und sorge für gute Stimmung.",y:"I"},
+       {e:"😄",t:"Ich höre zu und unterstütze das Team zuverlässig.",y:"S"},
+       {e:"😎",t:"Ich erstelle einen genauen Plan mit Deadlines.",y:"G"}]},
   {lv:2,ti:"Der neue Schüler",sc:"Ein neuer Mitschüler wirkt unsicher. Wie reagierst du?",
-   an:[{e:"🎤",t:"Ich gehe sofort rüber und nehme ihn/sie in die Gruppe auf.",y:"I"},
-       {e:"🤝",t:"Ich beobachte und spreche ruhig an, wenn der Moment passt.",y:"S"},
-       {e:"📋",t:"Ich überlege, was er/sie braucht, und helfe gezielt.",y:"G"},
-       {e:"🔥",t:"Ich organisiere eine Vorstellungsrunde für die ganze Klasse.",y:"D"}]},
+   an:[{e:"🙂",t:"Ich gehe sofort rüber und nehme ihn/sie in die Gruppe auf.",y:"I"},
+       {e:"😄",t:"Ich beobachte und spreche ruhig an, wenn der Moment passt.",y:"S"},
+       {e:"😎",t:"Ich überlege, was er/sie braucht, und helfe gezielt.",y:"G"},
+       {e:"😊",t:"Ich organisiere eine Vorstellungsrunde für die ganze Klasse.",y:"D"}]},
   {lv:3,ti:"Die Schulaufgabe",sc:"Ihr bekommt eine schwierige Hausaufgabe. Wie gehst du vor?",
-   an:[{e:"📋",t:"Ich recherchiere gründlich und überprüfe alles doppelt.",y:"G"},
-       {e:"🔥",t:"Ich starte sofort und arbeite mich schnell durch.",y:"D"},
-       {e:"🤝",t:"Ich mache es mit Freunden – gemeinsam klappt es besser.",y:"S"},
-       {e:"🎤",t:"Ich suche eine kreative Lösung, die heraussticht.",y:"I"}]},
+   an:[{e:"😎",t:"Ich recherchiere gründlich und überprüfe alles doppelt.",y:"G"},
+       {e:"😊",t:"Ich starte sofort und arbeite mich schnell durch.",y:"D"},
+       {e:"😄",t:"Ich mache es mit Freunden – gemeinsam klappt es besser.",y:"S"},
+       {e:"🙂",t:"Ich suche eine kreative Lösung, die heraussticht.",y:"I"}]},
   {lv:4,ti:"Das Streitgespräch",sc:"Zwei Freunde streiten sich und du steckst mittendrin. Was tust du?",
-   an:[{e:"🤝",t:"Ich höre beiden zu und versuche zu vermitteln.",y:"S"},
-       {e:"🔥",t:"Ich sage klar meine Meinung und schlage eine Lösung vor.",y:"D"},
-       {e:"🎤",t:"Ich lockere die Stimmung auf und bringe beide zum Lachen.",y:"I"},
-       {e:"📋",t:"Ich analysiere das Problem sachlich und suche die fairste Lösung.",y:"G"}]},
+   an:[{e:"😄",t:"Ich höre beiden zu und versuche zu vermitteln.",y:"S"},
+       {e:"😊",t:"Ich sage klar meine Meinung und schlage eine Lösung vor.",y:"D"},
+       {e:"🙂",t:"Ich lockere die Stimmung auf und bringe beide zum Lachen.",y:"I"},
+       {e:"😎",t:"Ich analysiere das Problem sachlich und suche die fairste Lösung.",y:"G"}]},
   {lv:5,ti:"Der große Auftritt",sc:"Eure Klasse hat einen Stand auf der Schulmesse. Welche Rolle übernimmst du?",
-   an:[{e:"🎤",t:"Ich bin das Gesicht des Standes und begeistere alle.",y:"I"},
-       {e:"🔥",t:"Ich plane den Ablauf und behalte den Überblick.",y:"D"},
-       {e:"🤝",t:"Ich sorge dafür, dass alles reibungslos läuft.",y:"S"},
-       {e:"📋",t:"Ich kümmere mich um Details, Infomaterial und Korrektheit.",y:"G"}]},
+   an:[{e:"🙂",t:"Ich bin das Gesicht des Standes und begeistere alle.",y:"I"},
+       {e:"😊",t:"Ich plane den Ablauf und behalte den Überblick.",y:"D"},
+       {e:"😄",t:"Ich sorge dafür, dass alles reibungslos läuft.",y:"S"},
+       {e:"😎",t:"Ich kümmere mich um Details, Infomaterial und Korrektheit.",y:"G"}]},
   {lv:6,ti:"Der Zeitdruck",sc:"Wichtige Abgabe ist morgen und ihr seid nicht fertig. Was passiert bei dir?",
-   an:[{e:"🔥",t:"Ich priorisiere sofort und ziehe das Ding durch.",y:"D"},
-       {e:"📋",t:"Ich arbeite konzentriert und kontrolliere jeden Schritt.",y:"G"},
-       {e:"🤝",t:"Ich schaue wer Hilfe braucht und wir ziehen gemeinsam durch.",y:"S"},
-       {e:"🎤",t:"Ich behalte die gute Laune, damit niemand in Panik verfällt.",y:"I"}]},
+   an:[{e:"😊",t:"Ich priorisiere sofort und ziehe das Ding durch.",y:"D"},
+       {e:"😎",t:"Ich arbeite konzentriert und kontrolliere jeden Schritt.",y:"G"},
+       {e:"😄",t:"Ich schaue wer Hilfe braucht und wir ziehen gemeinsam durch.",y:"S"},
+       {e:"🙂",t:"Ich behalte die gute Laune, damit niemand in Panik verfällt.",y:"I"}]},
   {lv:7,ti:"Das Feedback",sc:"Dein Lehrer kritisiert deine Arbeit vor der Klasse. Wie reagierst du?",
-   an:[{e:"🔥",t:"Ich verteidige meine Arbeit direkt.",y:"D"},
-       {e:"🎤",t:"Ich nehme es locker und zeige Gelassenheit.",y:"I"},
-       {e:"🤝",t:"Ich nicke und nehme das Feedback ruhig an.",y:"S"},
-       {e:"📋",t:"Ich notiere die Punkte genau und arbeite sie durch.",y:"G"}]},
+   an:[{e:"😊",t:"Ich verteidige meine Arbeit direkt.",y:"D"},
+       {e:"🙂",t:"Ich nehme es locker und zeige Gelassenheit.",y:"I"},
+       {e:"😄",t:"Ich nicke und nehme das Feedback ruhig an.",y:"S"},
+       {e:"😎",t:"Ich notiere die Punkte genau und arbeite sie durch.",y:"G"}]},
   {lv:8,ti:"Das Abenteuer",sc:"Du hast einen freien Samstag. Was klingt am coolsten?",
-   an:[{e:"🔥",t:"Ein spontanes Abenteuer – einfach losziehen.",y:"D"},
-       {e:"🎤",t:"Mit möglichst vielen Freunden abhängen und Spaß haben.",y:"I"},
-       {e:"🤝",t:"Einen entspannten Tag mit engen Freunden verbringen.",y:"S"},
-       {e:"📋",t:"Endlich Zeit für ein Projekt, das ich lange planen wollte.",y:"G"}]},
+   an:[{e:"😊",t:"Ein spontanes Abenteuer – einfach losziehen.",y:"D"},
+       {e:"🙂",t:"Mit möglichst vielen Freunden abhängen und Spaß haben.",y:"I"},
+       {e:"😄",t:"Einen entspannten Tag mit engen Freunden verbringen.",y:"S"},
+       {e:"😎",t:"Endlich Zeit für ein Projekt, das ich lange planen wollte.",y:"G"}]},
   {lv:9,ti:"Das Team-Versagen",sc:"Euer Teamprojekt läuft schief – Abgabe verpasst. Was denkst du zuerst?",
-   an:[{e:"🔥",t:"Wer ist verantwortlich? Das muss sofort geklärt werden.",y:"D"},
-       {e:"🎤",t:"Wie retten wir das? Ich hab schon Ideen!",y:"I"},
-       {e:"🤝",t:"Wie geht es dem Team? Ich will sicherstellen, dass alle okay sind.",y:"S"},
-       {e:"📋",t:"Was ist schiefgelaufen? Ich analysiere das genau.",y:"G"}]},
+   an:[{e:"😊",t:"Wer ist verantwortlich? Das muss sofort geklärt werden.",y:"D"},
+       {e:"🙂",t:"Wie retten wir das? Ich hab schon Ideen!",y:"I"},
+       {e:"😄",t:"Wie geht es dem Team? Ich will sicherstellen, dass alle okay sind.",y:"S"},
+       {e:"😎",t:"Was ist schiefgelaufen? Ich analysiere das genau.",y:"G"}]},
   {lv:10,ti:"Der Traumjob",sc:"Stell dir deinen perfekten Ausbildungsplatz vor. Wie sieht der aus?",
-   an:[{e:"🔥",t:"Ich habe Verantwortung und kann Dinge wirklich bewegen.",y:"D"},
-       {e:"🎤",t:"Jeden Tag Kontakt zu Menschen, kreativ, kein Tag wie der andere.",y:"I"},
-       {e:"🤝",t:"Teil eines festen Teams, verlässliche Arbeit, ich werde gebraucht.",y:"S"},
-       {e:"📋",t:"Präzise arbeiten, klare Strukturen, Dinge perfekt machen.",y:"G"}]}
+   an:[{e:"😊",t:"Ich habe Verantwortung und kann Dinge wirklich bewegen.",y:"D"},
+       {e:"🙂",t:"Jeden Tag Kontakt zu Menschen, kreativ, kein Tag wie der andere.",y:"I"},
+       {e:"😄",t:"Teil eines festen Teams, verlässliche Arbeit, ich werde gebraucht.",y:"S"},
+       {e:"😎",t:"Präzise arbeiten, klare Strukturen, Dinge perfekt machen.",y:"G"}]}
 ];
 
 var PRO={
@@ -466,7 +466,7 @@ function showRes(){
     '<div style="width:100%;margin-bottom:8px;"><div class="sec-title">📊 Deine Ausprägung</div>'+
     '<canvas id="bc" width="'+cw+'" height="'+cw+'" style="max-width:100%;margin:0 auto 6px;display:block;"></canvas>'+
     '<canvas id="br" width="'+bw+'" height="160" style="max-width:100%;margin:0 auto 18px;display:block;"></canvas></div>'+
-    '<div style="width:100%;margin-bottom:16px;"><div class="sec-title">🎯 Passende Ausbildungen für '+pn+'</div>'+
+    '<div style="width:100%;margin-bottom:16px;"><div class="sec-title">🎯 Passende Ausbildungen für dich</div>'+
     '<div class="job-grid">'+jobs+'</div>'+
     '<p style="font-size:0.68rem;color:#666;margin-top:6px;">● Farbpunkte = DISG-Typen</p></div>'+
     '<div class="traits">'+traits+'</div>'+
